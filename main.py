@@ -1,7 +1,7 @@
 from rftx_gui import RFTXMainWindow
 
 import sys
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -9,4 +9,4 @@ if __name__ == "__main__":
     window = RFTXMainWindow()
     window.show_splash()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

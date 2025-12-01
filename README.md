@@ -2,6 +2,7 @@
 
 ![Version](https://img.shields.io/badge/version-1.0-blue)
 ![Python](https://img.shields.io/badge/python-3.12+-green)
+![PyQt6](https://img.shields.io/badge/PyQt6-6.10.0+-orange)
 ![License](https://img.shields.io/badge/license-Free-brightgreen)
 
 **RFTX TUNING** is a free, open-source BMW ECU flashing tool designed to make engine tuning accessible to everyone. Flash custom tunes, backup your ECU, read diagnostic codes, and more – all through an intuitive graphical interface.
@@ -77,7 +78,11 @@ uv run python main.py
 
 2. **Install dependencies**:
 ```bash
-pip install pyqt5 pyserial
+# Basic installation
+pip install -r requirements.txt
+
+# Or for development (includes PyInstaller for building)
+pip install -r requirements-dev.txt
 ```
 
 3. **Run the application**:
@@ -136,15 +141,18 @@ The software will automatically:
 
 ```
 RFTX_SOFTWARE-main/
-├── main.py              # Application entry point
-├── rftx_gui.py          # PyQt5 GUI implementation
-├── RFTX_FLASHER.py      # Core ECU communication and flashing logic
-├── tune_matcher.py      # Intelligent tune matching system
-├── pyproject.toml       # Project configuration and dependencies
-├── uv.lock              # Locked dependencies
-├── README.md            # This file
-├── RFTX.log             # GUI operation log
-└── rftx_flasher.log     # Flasher operation log
+├── main.py                 # Application entry point
+├── rftx_gui.py             # PyQt6 GUI implementation
+├── RFTX_FLASHER.py         # Core ECU communication and flashing logic
+├── tune_matcher.py         # Intelligent tune matching system
+├── pyproject.toml          # Project configuration and dependencies
+├── requirements.txt        # Pip requirements (core)
+├── requirements-dev.txt    # Pip requirements (development)
+├── requirements-lock.txt   # Pinned versions for reproducible builds
+├── uv.lock                 # UV locked dependencies
+├── README.md               # This file
+├── RFTX.log                # GUI operation log
+└── rftx_flasher.log        # Flasher operation log
 ```
 
 ---

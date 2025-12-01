@@ -16,14 +16,14 @@ import serial
 import serial.tools.list_ports
 
 # GUI imports
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                             QHBoxLayout, QPushButton, QLabel, QProgressBar, 
                             QComboBox, QMessageBox, QFileDialog, QFrame,
                             QSplashScreen, QListWidget, QListWidgetItem, 
                             QTextEdit, QGroupBox, QGridLayout, QSpacerItem,
                             QSizePolicy, QTabWidget, QCheckBox, QDialog)
-from PyQt5.QtGui import QFont, QPixmap, QIcon, QColor, QPalette, QTextCursor
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread, QSize
+from PyQt6.QtGui import QFont, QPixmap, QIcon, QColor, QPalette, QTextCursor
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QThread, QSize
 
 # Import our tune matcher
 from tune_matcher import TuneMatcher

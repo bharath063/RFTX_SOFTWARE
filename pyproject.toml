@@ -9,7 +9,7 @@ authors = [
 ]
 keywords = ["BMW", "ECU", "Tuning", "Flasher", "Diagnostic", "OBD"]
 dependencies = [
-    "pyqt5>=5.15.11",
+    "pyqt6>=6.10.0",
     "pyserial>=3.5",
 ]
 

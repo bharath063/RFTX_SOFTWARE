@@ -1,0 +1,14 @@
+# RFTX BMW Flasher - Development Requirements
+# This file includes build and development dependencies
+#
+# Install with: pip install -r requirements-dev.txt
+#
+# This will install both core and development dependencies
+
+# Include core requirements
+-r requirements.txt
+
+# Development and build dependencies
+pyinstaller>=6.0.0
+setuptools>=69.0.0
+

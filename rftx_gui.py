@@ -1,13 +1,13 @@
 import sys
 import os
 import time
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QLabel, QProgressBar, QComboBox, QMessageBox, QFileDialog, QTabWidget,
-    QTextEdit, QSplashScreen, QToolTip, QGridLayout
+    QTextEdit, QSplashScreen, QGridLayout
 )
-from PyQt5.QtGui import QFont, QPixmap, QIcon, QPalette, QColor, QLinearGradient
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtGui import QFont, QPixmap, QIcon, QPalette, QColor
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from RFTX_FLASHER import BMWFlasher
 from tune_matcher import TuneMatcher
 import logging
@@ -90,14 +90,14 @@ class RFTXMainWindow(QMainWindow):
 
         # Set dark theme
         palette = QPalette()
-        palette.setColor(QPalette.Window, QColor(28, 28, 28))
-        palette.setColor(QPalette.WindowText, Qt.white)
-        palette.setColor(QPalette.Base, QColor(38, 38, 38))
-        palette.setColor(QPalette.AlternateBase, QColor(48, 48, 48))
-        palette.setColor(QPalette.Text, Qt.white)
-        palette.setColor(QPalette.Button, QColor(58, 58, 58))
-        palette.setColor(QPalette.ButtonText, Qt.white)
-        palette.setColor(QPalette.Highlight, QColor(0, 120, 255))
+        palette.setColor(QPalette.ColorRole.Window, QColor(28, 28, 28))
+        palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.Base, QColor(38, 38, 38))
+        palette.setColor(QPalette.ColorRole.AlternateBase, QColor(48, 48, 48))
+        palette.setColor(QPalette.ColorRole.Text, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.Button, QColor(58, 58, 58))
+        palette.setColor(QPalette.ColorRole.ButtonText, QColor(255, 255, 255))
+        palette.setColor(QPalette.ColorRole.Highlight, QColor(0, 120, 255))
         self.setPalette(palette)
 
         # Central widget and layout
@@ -116,7 +116,7 @@ class RFTXMainWindow(QMainWindow):
         """)
         header_layout = QHBoxLayout(header_widget)
         header_label = QLabel("RFTX TUNING")
-        header_label.setFont(QFont("Segoe UI", 24, QFont.Bold))
+        header_label.setFont(QFont("Segoe UI", 24, QFont.Weight.Bold))
         header_label.setStyleSheet("color: white; padding: 5px;")
         header_layout.addWidget(header_label)
         header_layout.addStretch()
@@ -160,7 +160,7 @@ class RFTXMainWindow(QMainWindow):
         home_layout.setSpacing(10)
         home_label = QLabel("Connect to Your BMW ECU")
         home_label.setFont(QFont("Segoe UI", 16))
-        home_label.setAlignment(Qt.AlignCenter)
+        home_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         home_label.setStyleSheet("color: #FFFFFF; padding: 10px;")
         home_layout.addWidget(home_label)
 
@@ -206,7 +206,7 @@ class RFTXMainWindow(QMainWindow):
         flash_layout.setSpacing(10)
         flash_label = QLabel("Flash Your ECU")
         flash_label.setFont(QFont("Segoe UI", 16))
-        flash_label.setAlignment(Qt.AlignCenter)
+        flash_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         flash_label.setStyleSheet("color: #FFFFFF; padding: 10px;")
         flash_layout.addWidget(flash_label)
 
@@ -249,7 +249,7 @@ class RFTXMainWindow(QMainWindow):
         self.status_label = QLabel("")
         self.status_label.setFont(QFont("Segoe UI", 12))
         self.status_label.setStyleSheet("color: #FF4444; padding: 5px;")
-        self.status_label.setAlignment(Qt.AlignCenter)
+        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         flash_layout.addWidget(self.status_label)
 
         self.tune_list = QTextEdit()
@@ -316,7 +316,7 @@ class RFTXMainWindow(QMainWindow):
         help_layout.setSpacing(10)
         help_title = QLabel("RFTX TUNING – User Guide")
         help_title.setFont(QFont("Segoe UI", 16))
-        help_title.setAlignment(Qt.AlignCenter)
+        help_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         help_title.setStyleSheet("color: #FFFFFF; padding: 10px;")
         help_layout.addWidget(help_title)
 
@@ -394,7 +394,7 @@ class RFTXMainWindow(QMainWindow):
         about_layout.setSpacing(10)
         about_title = QLabel("About RFTX TUNING")
         about_title.setFont(QFont("Segoe UI", 16))
-        about_title.setAlignment(Qt.AlignCenter)
+        about_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         about_title.setStyleSheet("color: #FFFFFF; padding: 10px;")
         about_layout.addWidget(about_title)
 
@@ -415,7 +415,7 @@ class RFTXMainWindow(QMainWindow):
         # Footer
         footer = QLabel("RFTX TUNING – Free BMW ECU Flasher | v1.0 | Contact: rftxtuning@gmail.com")
         footer.setFont(QFont("Segoe UI", 9))
-        footer.setAlignment(Qt.AlignCenter)
+        footer.setAlignment(Qt.AlignmentFlag.AlignCenter)
         footer.setStyleSheet("color: #666666; padding: 10px;")
         main_layout.addWidget(footer)
 
@@ -440,8 +440,8 @@ class RFTXMainWindow(QMainWindow):
         splash = QSplashScreen(QPixmap(400, 200))
         splash.setStyleSheet("background-color: #1C1C1C; color: #0078FF;")
         label = QLabel("RFTX TUNING\nLoading...", splash)
-        label.setFont(QFont("Segoe UI", 18, QFont.Bold))
-        label.setAlignment(Qt.AlignCenter)
+        label.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label.setStyleSheet("color: #0078FF;")
         label.resize(400, 200)
         splash.show()
@@ -534,9 +534,9 @@ class RFTXMainWindow(QMainWindow):
             self, "Battery Warning",
             "Ensure your vehicle's battery is fully charged or connected to a 12V+ charger. "
             "Power loss during flashing can damage the ECU. Do you want to proceed?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No
         )
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             self.thread = FlasherThread(self.flasher, "flash", flash_file=self.selected_file)
             self.thread.progress.connect(self.progress_bar.setValue)
             self.thread.finished.connect(self.on_operation_finished)
@@ -641,4 +641,4 @@ if __name__ == "__main__":
     window = RFTXMainWindow()
     window.show_splash()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
