@@ -72,9 +72,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install pyqt5-qt5==5.15.2
-          uv sync
-          uv pip install pyinstaller
+          uv pip install pyqt5>=5.15.11 pyqt5-qt5==5.15.2 pyserial>=3.5 pyinstaller>=6.0.0
 
       - name: Build Windows executable
         run: |
