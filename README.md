@@ -53,8 +53,8 @@
 
 1. **Clone or download this repository**:
 ```bash
-git clone https://github.com/yourusername/RFTX_SOFTWARE.git
-cd RFTX_SOFTWARE-main
+git clone https://github.com/RFTX-TUNING/RFTX_SOFTWARE.git
+cd RFTX_SOFTWARE
 ```
 
 2. **Install UV** (if not already installed):
