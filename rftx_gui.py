@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QTextEdit, QSplashScreen, QGridLayout
 )
 from PyQt6.QtGui import QFont, QPixmap, QIcon, QPalette, QColor
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from RFTX_FLASHER import BMWFlasher
 from tune_matcher import TuneMatcher
 import logging
@@ -82,6 +82,8 @@ class RFTXMainWindow(QMainWindow):
         self.setup_logging()
         self.thread = None
         self.ecu_info = {}
+        self.last_available_ports = []
+        self.setup_port_monitoring()
 
     def init_ui(self):
         self.setWindowTitle("RFTX TUNING – BMW ECU Flasher")
@@ -167,13 +169,31 @@ class RFTXMainWindow(QMainWindow):
         port_group = QWidget()
         port_layout = QHBoxLayout(port_group)
         port_label = QLabel("COM Port:")
-        port_label.setFont(QFont("Segoe UI", 12))
+        port_label.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
+        port_label.setStyleSheet("color: #FFFFFF; padding: 5px;")
+        port_label.setMinimumWidth(100)
         self.port_combo = QComboBox()
         self.port_combo.addItems(self.flasher.find_available_ports())
-        self.port_combo.setStyleSheet("padding: 5px; background: #3A3A3A; color: white;")
+        self.port_combo.setStyleSheet("""
+            QComboBox {
+                padding: 8px;
+                background: #3A3A3A;
+                color: white;
+                border: 1px solid #555555;
+                border-radius: 4px;
+                min-width: 150px;
+            }
+            QComboBox:hover {
+                border: 1px solid #0078FF;
+            }
+            QComboBox::drop-down {
+                border: none;
+                padding-right: 5px;
+            }
+        """)
         self.connect_button = QPushButton("Connect")
         self.connect_button.setStyleSheet(button_style)
-        self.connect_button.setToolTip("Connect to the ECU using the selected COM port")
+        self.connect_button.setToolTip("Connect to the ECU using the selected COM port (auto-detects port changes)")
         self.connect_button.clicked.connect(self.on_connect_clicked)
         port_layout.addWidget(port_label)
         port_layout.addWidget(self.port_combo)
@@ -413,7 +433,7 @@ class RFTXMainWindow(QMainWindow):
         self.tabs.addTab(about_widget, "About Us")
 
         # Footer
-        footer = QLabel("RFTX TUNING – Free BMW ECU Flasher | v1.0 | Contact: rftxtuning@gmail.com")
+        footer = QLabel("RFTX TUNING – Free BMW ECU Flasher | v0.0.2 | Contact: rftxtuning@gmail.com")
         footer.setFont(QFont("Segoe UI", 9))
         footer.setAlignment(Qt.AlignmentFlag.AlignCenter)
         footer.setStyleSheet("color: #666666; padding: 10px;")
@@ -434,6 +454,50 @@ class RFTXMainWindow(QMainWindow):
         log_handler = LogHandler(self.log_text)
         log_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         logger.addHandler(log_handler)
+
+    def setup_port_monitoring(self):
+        """Set up automatic COM port monitoring."""
+        # Initialize the port list
+        self.last_available_ports = self.flasher.find_available_ports()
+        
+        # Create a timer to check for port changes every 2 seconds
+        self.port_monitor_timer = QTimer(self)
+        self.port_monitor_timer.timeout.connect(self.check_port_changes)
+        self.port_monitor_timer.start(2000)  # Check every 2 seconds
+        
+        logger.info("COM port auto-detection enabled")
+
+    def check_port_changes(self):
+        """Check if COM ports have changed and update the list automatically."""
+        current_ports = self.flasher.find_available_ports()
+        
+        # Only update if there's a change
+        if set(current_ports) != set(self.last_available_ports):
+            # Store the currently selected port
+            current_port = self.port_combo.currentText()
+            
+            # Determine what changed
+            added_ports = set(current_ports) - set(self.last_available_ports)
+            removed_ports = set(self.last_available_ports) - set(current_ports)
+            
+            # Update the combo box
+            self.port_combo.clear()
+            self.port_combo.addItems(current_ports)
+            
+            # Try to reselect the previously selected port if it's still available
+            if current_port and current_port in current_ports:
+                self.port_combo.setCurrentText(current_port)
+            
+            # Log the changes
+            if added_ports:
+                logger.info(f"COM port(s) connected: {', '.join(sorted(added_ports))}")
+                self.log_text.append(f"✓ Connected: {', '.join(sorted(added_ports))}")
+            if removed_ports:
+                logger.info(f"COM port(s) disconnected: {', '.join(sorted(removed_ports))}")
+                self.log_text.append(f"✗ Disconnected: {', '.join(sorted(removed_ports))}")
+            
+            # Update the last known ports
+            self.last_available_ports = current_ports
 
     def show_splash(self):
         """Show loading splash screen."""
@@ -631,6 +695,10 @@ class RFTXMainWindow(QMainWindow):
             QMessageBox.critical(self, "Error", message)
 
     def closeEvent(self, event):
+        # Stop the port monitoring timer
+        if hasattr(self, 'port_monitor_timer'):
+            self.port_monitor_timer.stop()
+        
         self.flasher.disconnect()
         self.tune_matcher.cleanup()
         event.accept()

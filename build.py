@@ -13,7 +13,7 @@ from pathlib import Path
 
 # Build configuration
 APP_NAME = "RFTX_Tuning"
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 MAIN_SCRIPT = "main.py"
 ICON_FILE = "icon.png"  # Will be converted to .ico/.icns as needed
 
