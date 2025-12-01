@@ -1,0 +1,376 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: false
+        default: 'auto'
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  # Job 1: Determine version and create tag
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      tag_name: ${{ steps.get_version.outputs.tag_name }}
+      should_release: ${{ steps.check_release.outputs.should_release }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from pyproject.toml
+        id: get_version
+        run: |
+          if [ "${{ github.event.inputs.version }}" != "" ] && [ "${{ github.event.inputs.version }}" != "auto" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=$(grep -oP '(?<=version = ")[^"]+' pyproject.toml)
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag_name=v$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Check if release already exists
+        id: check_release
+        run: |
+          TAG_NAME="v${{ steps.get_version.outputs.version }}"
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            echo "Tag $TAG_NAME already exists. Skipping release."
+          else
+            echo "should_release=true" >> $GITHUB_OUTPUT
+            echo "Tag $TAG_NAME does not exist. Will create release."
+          fi
+
+  # Job 2: Build for Windows
+  build-windows:
+    needs: version
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Cache UV dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Cache PyInstaller builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            dist
+          key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pyinstaller-
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.ps1 | powershell
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          uv pip install pyinstaller
+
+      - name: Build Windows executable
+        run: |
+          uv run python build.py
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: releases/*Windows*.zip
+          if-no-files-found: error
+
+  # Job 3: Build for macOS
+  build-macos:
+    needs: version
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Cache UV dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Cache PyInstaller builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            dist
+          key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pyinstaller-
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          uv pip install pyinstaller
+
+      - name: Build macOS executable
+        run: |
+          uv run python build.py
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: releases/*macOS*.tar.gz
+          if-no-files-found: error
+
+  # Job 4: Build for Linux
+  build-linux:
+    needs: version
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Cache UV dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Cache PyInstaller builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            dist
+          key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pyinstaller-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxcb-xinerama0 libxcb-cursor0 libxkbcommon-x11-0
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          uv pip install pyinstaller
+
+      - name: Build Linux executable
+        run: |
+          uv run python build.py
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: releases/*Linux*.tar.gz
+          if-no-files-found: error
+
+  # Job 5: Create GitHub Release
+  release:
+    needs: [version, build-windows, build-macos, build-linux]
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release_files
+          find artifacts -type f \( -name "*.zip" -o -name "*.tar.gz" \) -exec cp {} release_files/ \;
+          ls -lh release_files/
+
+      - name: Calculate checksums
+        run: |
+          cd release_files
+          sha256sum * > checksums.txt
+          cat checksums.txt
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          TAG_NAME="${{ needs.version.outputs.tag_name }}"
+          
+          # Get commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          
+          # Create release notes
+          cat > release_notes.md << EOF
+          # RFTX TUNING ${TAG_NAME}
+          
+          ## 🚀 What's New
+          
+          This release includes the following changes:
+          
+          ${COMMITS}
+          
+          ## 📦 Downloads
+          
+          Choose the appropriate package for your operating system:
+          
+          - **Windows**: \`RFTX_Tuning-v${VERSION}-Windows-x64.zip\`
+          - **macOS**: \`RFTX_Tuning-v${VERSION}-macOS-Universal.tar.gz\` (Intel & Apple Silicon)
+          - **Linux**: \`RFTX_Tuning-v${VERSION}-Linux-x64.tar.gz\`
+          
+          ## ✅ Verification
+          
+          After downloading, verify the integrity of your file using the SHA256 checksums in \`checksums.txt\`.
+          
+          ## 📋 System Requirements
+          
+          ### Hardware
+          - K+DCAN cable (USB to OBD-II adapter)
+          - Supported BMW vehicle with compatible ECU
+          - Stable 12V+ power supply
+          
+          ### Software
+          - Windows 10/11, macOS 11+, or Linux (Ubuntu 20.04+)
+          - No Python installation required (standalone executable)
+          
+          ## 🚨 Important Safety Notes
+          
+          - **Always backup your ECU** before flashing
+          - Ensure **stable power supply** (12V+) during flashing
+          - **Do not disconnect** cable or power during operations
+          - Use only **compatible tune files** for your ECU type
+          
+          ## 📖 Documentation
+          
+          For installation instructions, usage guide, and troubleshooting:
+          - See the [README](https://github.com/${{ github.repository }}/blob/main/README.md)
+          - Visit our website: [RFTX TUNING](https://github.com/${{ github.repository }})
+          
+          ## 💬 Support
+          
+          - Email: rftxtuning@gmail.com
+          - Issues: [GitHub Issues](https://github.com/${{ github.repository }}/issues)
+          
+          ## ⚠️ Disclaimer
+          
+          This software is provided "as-is" without warranties. ECU tuning may void warranties and may be illegal in some jurisdictions. Use at your own risk.
+          
+          ---
+          
+          **Made with ❤️ by RFTX TUNING Team**
+          EOF
+          
+          cat release_notes.md
+
+      - name: Create Git tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -a "${{ needs.version.outputs.tag_name }}" -m "Release ${{ needs.version.outputs.tag_name }}"
+          git push origin "${{ needs.version.outputs.tag_name }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.version.outputs.tag_name }}
+          name: RFTX TUNING ${{ needs.version.outputs.tag_name }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          files: |
+            release_files/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## ✅ Release Created Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${{ needs.version.outputs.tag_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cd release_files
+          for file in *; do
+            if [ "$file" != "checksums.txt" ]; then
+              SIZE=$(du -h "$file" | cut -f1)
+              echo "- \`$file\` ($SIZE)" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.version.outputs.tag_name }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [Download Assets](https://github.com/${{ github.repository }}/releases/tag/${{ needs.version.outputs.tag_name }})" >> $GITHUB_STEP_SUMMARY
+

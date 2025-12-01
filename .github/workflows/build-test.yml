@@ -1,0 +1,197 @@
+name: Build Test (No Release)
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches-ignore:
+      - main
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  # Test building on all platforms without creating release
+  test-build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Cache UV dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Cache PyInstaller builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            dist
+          key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pyinstaller-
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.ps1 | powershell
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          uv pip install pyinstaller
+
+      - name: Test build
+        run: |
+          uv run python build.py
+
+      - name: Verify executable
+        run: |
+          if (!(Test-Path "dist/RFTX_Tuning.exe")) {
+            Write-Error "Executable not found!"
+            exit 1
+          }
+          Write-Output "✅ Windows build successful"
+
+  test-build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Cache UV dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Cache PyInstaller builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            dist
+          key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pyinstaller-
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          uv pip install pyinstaller
+
+      - name: Test build
+        run: |
+          uv run python build.py
+
+      - name: Verify executable
+        run: |
+          if [ ! -d "dist/RFTX_Tuning.app" ]; then
+            echo "App bundle not found!"
+            exit 1
+          fi
+          echo "✅ macOS build successful"
+
+  test-build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Cache UV dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Cache PyInstaller builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            dist
+          key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pyinstaller-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxcb-xinerama0 libxcb-cursor0 libxkbcommon-x11-0
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          uv pip install pyinstaller
+
+      - name: Test build
+        run: |
+          uv run python build.py
+
+      - name: Verify executable
+        run: |
+          if [ ! -f "dist/RFTX_Tuning" ]; then
+            echo "Executable not found!"
+            exit 1
+          fi
+          echo "✅ Linux build successful"
+
+  # Summary job
+  build-summary:
+    needs: [test-build-windows, test-build-macos, test-build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build summary
+        run: |
+          echo "## ✅ All Builds Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All platform builds completed without errors:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Windows x64" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ macOS Universal" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Linux x64" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Ready to merge to main for release!" >> $GITHUB_STEP_SUMMARY
+

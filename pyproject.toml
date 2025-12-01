@@ -1,0 +1,44 @@
+[project]
+name = "rftx-tuning"
+version = "0.0.1"
+description = "Free BMW ECU Flasher - Flash custom tunes, backup ECU, and manage diagnostics"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    {name = "RFTX Team", email = "rftxtuning@gmail.com"}
+]
+keywords = ["BMW", "ECU", "Tuning", "Flasher", "Diagnostic", "OBD"]
+dependencies = [
+    "pyqt5>=5.15.11",
+    "pyserial>=3.5",
+]
+
+[project.optional-dependencies]
+build = [
+    "pyinstaller>=6.0.0",
+    "setuptools>=69.0.0",
+]
+dev = [
+    "pyinstaller>=6.0.0",
+    "setuptools>=69.0.0",
+]
+
+[project.scripts]
+rftx = "main:main"
+
+[tool.uv]
+dev-dependencies = [
+    "pyinstaller>=6.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
+exclude = ["build*", "dist*", "releases*", "tunes*", "*.egg-info"]
+
+[tool.setuptools]
+py-modules = ["main", "rftx_gui", "RFTX_FLASHER", "tune_matcher", "build", "bump_version"]

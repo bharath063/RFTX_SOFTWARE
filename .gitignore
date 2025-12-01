@@ -1,0 +1,253 @@
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+*.pyo
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ============================================================
+# PyInstaller
+# ============================================================
+*.manifest
+*.spec
+
+# ============================================================
+# Virtual Environments
+# ============================================================
+venv/
+ENV/
+env/
+.venv/
+
+# ============================================================
+# UV Package Manager
+# ============================================================
+# Note: uv.lock should be committed for reproducible builds
+# Uncomment the next line if you don't want to track uv.lock
+# uv.lock
+
+# ============================================================
+# IDEs & Editors
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# ============================================================
+# Operating System Files
+# ============================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================
+# Project Specific
+# ============================================================
+# Log files
+*.log
+rftx_flasher.log
+RFTX.log
+
+# Backup files
+*.backup
+*.bak
+*.old
+backups/
+
+# Tune files (user data) - entire directory ignored
+tunes/
+
+# Release artifacts - entire directory ignored
+releases/
+*.tar.gz
+*.zip
+checksums.txt
+
+# ECU backup files (sensitive data)
+*.bin
+BACKUP_*.bin
+
+# ============================================================
+# Build Artifacts
+# ============================================================
+build/
+dist/
+*.exe
+*.app
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.msi
+
+# ============================================================
+# Testing
+# ============================================================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+nosetests.xml
+test-results/
+
+# ============================================================
+# Temporary Files
+# ============================================================
+*.tmp
+*.temp
+temp/
+tmp/
+.cache/
+
+# ============================================================
+# Sensitive Data
+# ============================================================
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+*.der
+secrets.json
+.env
+.env.local
+.env.*.local
+config.local.json
+
+# ============================================================
+# Documentation Build
+# ============================================================
+docs/_build/
+docs/.doctrees/
+site/
+
+# ============================================================
+# Jupyter Notebook
+# ============================================================
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# ============================================================
+# Database
+# ============================================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================
+# Compiled Files
+# ============================================================
+*.com
+*.class
+*.dll
+*.o
+*.so
+*.dylib
+
+# ============================================================
+# Archives (unless specifically needed)
+# ============================================================
+# Uncomment if you want to ignore all archives
+# *.7z
+# *.dmg
+# *.gz
+# *.iso
+# *.jar
+# *.rar
+# *.tar
+# *.zip
