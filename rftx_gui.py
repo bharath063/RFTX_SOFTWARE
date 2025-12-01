@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QFont, QPixmap, QIcon, QPalette, QColor, QLinearGradient
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from rftx_flasherr import BMWFlasher
+from RFTX_FLASHER import BMWFlasher
 from tune_matcher import TuneMatcher
 import logging
 
