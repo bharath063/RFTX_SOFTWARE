@@ -65,31 +65,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-
-      - name: Cache UV dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/uv
-            .venv
-          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
-
-      - name: Cache PyInstaller builds
-        uses: actions/cache@v4
-        with:
-          path: |
-            build
-            dist
-          key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/*.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pyinstaller-
 
       - name: Install UV
         run: |
-          curl -LsSf https://astral.sh/uv/install.ps1 | powershell
+          powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
       - name: Install dependencies
         run: |
@@ -120,27 +99,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-
-      - name: Cache UV dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/uv
-            .venv
-          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
-
-      - name: Cache PyInstaller builds
-        uses: actions/cache@v4
-        with:
-          path: |
-            build
-            dist
-          key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/*.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pyinstaller-
 
       - name: Install UV
         run: |
@@ -176,27 +134,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-
-      - name: Cache UV dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/uv
-            .venv
-          key: ${{ runner.os }}-uv-${{ hashFiles('**/uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
-
-      - name: Cache PyInstaller builds
-        uses: actions/cache@v4
-        with:
-          path: |
-            build
-            dist
-          key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/*.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pyinstaller-
 
       - name: Install system dependencies
         run: |
